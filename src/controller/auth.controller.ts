@@ -35,10 +35,8 @@ export async function createSessionHandler(
   console.log(user?.toJSON());
 
   const accessToken = signAccessToken(user);
-  console.log("accessToken");
 
   const refreshToken = await signRefreshToken({ userId: user._id });
-  console.log(refreshToken);
   return res.send({
     accessToken,
     refreshToken,
@@ -46,7 +44,6 @@ export async function createSessionHandler(
 }
 
 export async function refreshAccessTokenHandler(req: Request, res: Response) {
-  console.log("test1");
   const refreshToken = get(req, "headers.x-refresh");
   
   const decoded = verifyJwt<{ session: string }>(

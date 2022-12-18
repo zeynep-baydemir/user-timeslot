@@ -3,19 +3,7 @@ import { ObjectId } from 'mongodb';
 import { stdTimeFunctions } from 'pino';
 import { date, object, string, TypeOf } from 'zod';
 
-export const reserveSlotSchema = object({
-    params:  object ({
-        id: string(), 
-    }),
-    body: object ({
-        //startTime: string({required_error: "start time is required"}),
-        startTime: string(),
 
-
-        day: string(),
-
-    })
-})
 
 export const createSlotSchema = object({
     body: object ({
@@ -24,5 +12,24 @@ export const createSlotSchema = object({
     })
 })
 
-export type ReserveSlotInput = TypeOf<typeof reserveSlotSchema>;
+export const reservedSlotsSchema = object({
+    body: object ({
+        day: string(),
+        startTime: string(),
+        endTime: string()
+        
+    })
+})
+
+export const deleteSlotSchema = object({
+    body: object ({
+        day: string({required_error: "day is required"}),
+        startTime: string({required_error: "startTime is required"}),
+        endTime: string({required_error: "endTime is required"})
+        
+    })
+})
+
 export type CreateSlotInput = TypeOf<typeof createSlotSchema>;
+export type ReservedSlotsInput = TypeOf<typeof reservedSlotsSchema>["body"];
+export type DeleteSlotInput = TypeOf<typeof deleteSlotSchema>["body"];

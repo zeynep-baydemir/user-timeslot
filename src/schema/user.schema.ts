@@ -23,6 +23,30 @@ export const createUserSchema = object({
     }),
 });
 
+export const createAdminSchema = object({   
+    body: object({
+        firstName: string({
+            required_error: "First name is required"
+        }),
+        role: string(),
+        lastName: string({
+            required_error: "Last name is required"
+        }),
+        password: string({
+            required_error: "Password is required"
+        }).min(6, "Password is too short"),
+        passwordConfirmation: string({
+                required_error: "Password confirmation is required"
+        }),
+        email: string({
+            required_error: "Email is required"
+        }).email("Not a valid email"),
+    }).refine((data)=> data.password === data.passwordConfirmation,{
+        message: "Passwords do not match",
+        path: ["passwordConfirmation"],
+    }),
+});
+
 export const verifyUserSchema = object({
     params: object({
         id: string(),
@@ -56,8 +80,24 @@ export const resetPasswordSchema = object({
     }),
 })
 
+export const reserveSlotSchema = object({
+    params:  object ({
+        id: string(), 
+    }),
+    body: object ({
+        startTime: string(),
+
+        endTime: string(),
+        day: string(),
+
+    })
+})
+
 
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
+export type CreateAdminInput = TypeOf<typeof createAdminSchema>["body"];
+export type ReserveSlotInput = TypeOf<typeof reserveSlotSchema>;
+
 export type VerifyUserInput = TypeOf<typeof verifyUserSchema>["params"];
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;

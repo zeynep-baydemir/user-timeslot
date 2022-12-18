@@ -1,11 +1,34 @@
+import dayjs from "dayjs";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
-import { CreateUserInput, ForgotPasswordInput, ResetPasswordInput, VerifyUserInput } from "../schema/user.schema";
-import { createUser, findUserByEmail, findUserById, getUsers } from "../service/user.service";
+import { CreateUserInput, ForgotPasswordInput, ReserveSlotInput, ResetPasswordInput, VerifyUserInput } from "../schema/user.schema";
+import { createSlot, findSlot } from "../service/slot.service";
+import { createUser, deleteUsers, findUserByEmail, findUserById, getUsers } from "../service/user.service";
 import log from "../utils/logger";
 import sendEmail from "../utils/mailer";
 
+
 export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
+    const body = req.body;
+    try {
+        const user = await createUser(body);
+        await sendEmail({
+            from: "test.example.com",
+            to: user.email,
+            subject: "Please verify your account",
+            text: `verification code ${user.verificationCode}. Id: ${user._id}`,
+        }
+        );
+        return res.send("User successfully created");
+    } catch (error: any) {
+        if (error.code === 11000){
+                return res.status(409).send("Account already exists");
+        }
+        return res.status(500).send(error);
+    }
+}
+
+export async function createAdminHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
     const body = req.body;
     try {
         const user = await createUser(body);
@@ -77,7 +100,7 @@ export async function forgotPasswordHandler(req: Request<{}, {}, ForgotPasswordI
 }
 
 export async function resetPasswordHandler(
-    req: Request<ResetPasswordInput["params"], {}, ResetPasswordInput["body"]>, 
+    req: Request<ResetPasswordInput["params"],{}, ResetPasswordInput["body"]>, 
     res: Response){
 
     const {id, passwordResetCode} = req.params;
@@ -99,6 +122,46 @@ export async function resetPasswordHandler(
     return res.send("Successfully updated user password");
 
 }
+
+export async function reserveSlotHandler(req: Request<ReserveSlotInput["params"],{},ReserveSlotInput["body"]>, res: Response){
+    const id = req.params.id;
+    const {startTime,day,endTime} = req.body;
+
+    const currentDay = dayjs();
+    
+
+    if((currentDay.year() > +day.substring(0,4))|| (currentDay.month()+1 > +day.substring(5,7))|| (currentDay.date() > +day.substring(8,10))){
+        return res.send("The slot from the past cannot be reserved");
+    }
+
+    if((currentDay.year() <  +day.substring(0,4))|| (currentDay.month()+1 < +day.substring(5,7)) ){
+        return res.send("This slot cannot be reserved");
+    }
+
+    const user = await findUserById(id);
+
+    if (!user){
+        return res.send("No user found");
+    }
+    
+    const slot = await findSlot(day,startTime,endTime);
+    if (!slot){
+        let body = {day,startTime,endTime};
+        const slot = await createSlot(body);
+        return res.send(slot);
+    }
+    else{
+        if(!slot.user){
+            slot.user = user;
+            await slot.save();
+            return res.send(slot);
+
+        }else{
+            return res.send("This slot is not available. Please choose another slot");
+        }
+    }
+}
+
 export async function getCurrentUserHandler(req: Request, res: Response) {
     return res.send(res.locals.user);
 }
@@ -107,6 +170,9 @@ export async function getUsersHandler(req: Request, res: Response){
     const users = await getUsers();
     return res.send(users);
 }
-
+export async function deleteUsersHandler(req: Request, res: Response){
+    await deleteUsers();
+    return res.send("deleted");
+}
 
 

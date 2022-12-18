@@ -1,4 +1,5 @@
-import { getModelForClass, mongoose, prop } from "@typegoose/typegoose";
+import { getModelForClass, mongoose, prop, Ref } from "@typegoose/typegoose";
+import { User } from "./user.model";
 
 export class Slot {
     @prop()
@@ -10,8 +11,8 @@ export class Slot {
     @prop()
     endTime: string;
 
-    @prop({default: null})
-    userId: string;
+    @prop({ref: () => User })
+    user: Ref<User>;
 }
 
 const SlotModel = getModelForClass(Slot);

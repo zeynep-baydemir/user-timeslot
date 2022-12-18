@@ -15,3 +15,10 @@ export function findUserByEmail(email: string){
 export function getUsers(){
     return UserModel.find().lean();
 }
+export function createAdmin(input: Partial<User>){
+    return UserModel.create(input);
+}
+
+export function deleteUsers(){
+    return UserModel.deleteMany({});
+}

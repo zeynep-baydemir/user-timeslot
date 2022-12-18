@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from "express";
 
-const requireUser = (req: Request, res: Response, next: NextFunction) => {
+export const requireUser = (req: Request, res: Response, next: NextFunction) => {
   const user = res.locals.user;
 
   if (!user) {
@@ -11,4 +11,15 @@ const requireUser = (req: Request, res: Response, next: NextFunction) => {
   return next();
 };
 
-export default requireUser;
+export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const user = res.locals.user;
+  if (!user) {
+    return res.sendStatus(403);
+  }
+  if (user.role !== "admin"){
+    return res.sendStatus(401);
+  }else{
+    return next();
+  }
+}
+
