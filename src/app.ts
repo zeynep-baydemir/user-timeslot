@@ -7,6 +7,7 @@ import log from './utils/logger';
 import router from './routes';
 import deserializeUser from './middleware/deserializeUser';
 import { deleteSlots } from './service/slot.service';
+import { swaggerDocs } from './utils/swagger';
 
 const app = express();
 
@@ -14,15 +15,12 @@ app.use(express.json());
 app.use(deserializeUser);
 app.use(router);
 
-
-const dateTime = new Date();
-console.log(dateTime);
-
 const jobDelete =  nodeCron.schedule("0 0 0 1 * *", deleteSlots);
 
-const port = config.get('port');
+const port = config.get<number>('port');
 
-app.listen(port, () => [
+app.listen(port, async () => [
     log.info(`App started at http://localhost:${port}`),
-    connectToDb()
+    await connectToDb(),
+    swaggerDocs(app,port),
 ]);

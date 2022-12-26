@@ -7,7 +7,7 @@ import { createSlotSchema } from '../schema/slot.schema';
 const router = express.Router();
 
 router.post(
-    "/api/slots/reserved",requireUser,
+    "/api/slots/reserved", requireUser,
     getReservedSlotsHandler
 )
 

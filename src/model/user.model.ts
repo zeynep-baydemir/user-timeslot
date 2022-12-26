@@ -49,6 +49,9 @@ export class User {
     @prop({default: "user"})
     role: string;
 
+    @prop()
+    organization: string;
+
     async validatePassword(this: DocumentType<User>, candidatePassword: string){
         try {
             return await argon2.verify(this.password, candidatePassword);

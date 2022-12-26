@@ -32,7 +32,6 @@ export async function createSessionHandler(
   if (!isValid) {
     return res.send(message);
   }
-  console.log(user?.toJSON());
 
   const accessToken = signAccessToken(user);
 

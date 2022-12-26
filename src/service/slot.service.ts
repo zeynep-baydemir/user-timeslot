@@ -1,5 +1,6 @@
 import { ObjectId } from "mongoose";
 import { string } from "zod";
+import { Room, RoomModel } from "../model/organization.model";
 import SlotModel, { Slot } from "../model/slot.model";
 import { ReservedSlotsInput } from "../schema/slot.schema";
 
@@ -8,40 +9,27 @@ export function createSlot(input:Partial<Slot>){
     return SlotModel.create(input);
 }
 
-export function findSlot(day: string,startTime: string, endTime:string ){
-    return SlotModel.findOne({day,startTime, endTime});
+export function findSlot(day: string,startTime: string, endTime:string, room: Room, desk: string ){
+    return SlotModel.findOne({day,startTime, endTime,room,desk});
 }
 
 export function getReservedSlots(day?: string,startTime?: string, endTime?:string){
-    console.log(day === undefined);
-    console.log(startTime === undefined);
-    console.log(endTime === undefined);
-
-    if((day === undefined) && (startTime === undefined) && (endTime === undefined)){
-        console.log("undefined");
-        return SlotModel.find().select('day startTime endTime');
+    let query = {
+        day,
+        startTime,
+        endTime
+    };
+    if (day) {
+        query.day = day;
     }
-    else if ((day === undefined) && (startTime !== undefined) && (endTime === undefined)){
-        return SlotModel.find({startTime}).select('day startTime endTime');
+    if (startTime) {
+        query.startTime = startTime;
     }
-    else if ((day === undefined) && (startTime !== undefined) && (endTime !== undefined)){
-        return SlotModel.find({startTime,endTime}).select('day startTime endTime');
+    if (day) {
+        query.endTime = endTime;
     }
-    else if ((day === undefined) && (startTime === undefined) && (endTime !== undefined)){
-        return SlotModel.find({endTime}).select('day startTime endTime');
-    }
-    else if ((day !== undefined) && (startTime === undefined) && (endTime === undefined)){
-        return SlotModel.find({day}).select('day startTime endTime');
-    }
-    else if ((day !== undefined) && (startTime !== undefined) && (endTime === undefined)){
-        return SlotModel.find({day,startTime}).select('day startTime endTime');
-    }
-    else if ((day !== undefined) && (startTime !== undefined) && (endTime !== undefined)){
-        return SlotModel.find({day,startTime,endTime}).select('day startTime endTime');
-    }
-    else if ((day !== undefined) && (startTime === undefined) && (endTime !== undefined)){
-        return SlotModel.find({day,endTime}).select('day startTime endTime');
-    }
+    console.log(query);
+    return SlotModel.find(query);
 
 }
 

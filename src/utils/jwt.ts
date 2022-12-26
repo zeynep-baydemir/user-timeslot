@@ -9,7 +9,6 @@ export function signJwt(
     options?: jwt.SignOptions | undefined
 ){
     const signingKey = Buffer.from(config.get<string>(keyName), "base64").toString("ascii");
-    console.log("before jwt.sign");
 
     return jwt.sign(object, signingKey, {
         ...(options && options),
@@ -19,7 +18,6 @@ export function signJwt(
 }
 
 export function verifyJwt<T>( token: string, keyName: "accessTokenPublicKey" | "refreshTokenPublicKey"): T|null{
-    console.log("test2");
     const publicKey = Buffer.from(config.get<string>(keyName),"base64").toString("ascii");
     try {
         const decoded = jwt.verify(token,publicKey) as T;

@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
-import { CreateUserInput, ForgotPasswordInput, ReserveSlotInput, ResetPasswordInput, VerifyUserInput } from "../schema/user.schema";
+import { AssignAdminorUserInput, CreateUserInput, ForgotPasswordInput, ReserveSlotInput, ResetPasswordInput, VerifyUserInput } from "../schema/user.schema";
+import { findRoomById } from "../service/organization.service";
 import { createSlot, findSlot } from "../service/slot.service";
 import { createUser, deleteUsers, findUserByEmail, findUserById, getUsers } from "../service/user.service";
 import log from "../utils/logger";
@@ -17,9 +18,8 @@ export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, r
             to: user.email,
             subject: "Please verify your account",
             text: `verification code ${user.verificationCode}. Id: ${user._id}`,
-        }
-        );
-        return res.send("User successfully created");
+        });
+        return res.send(user);
     } catch (error: any) {
         if (error.code === 11000){
                 return res.status(409).send("Account already exists");
@@ -48,6 +48,28 @@ export async function createAdminHandler(req: Request<{}, {}, CreateUserInput>, 
         return res.status(500).send(error);
     }
 }
+
+export async function createSuperAdminHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
+    const body = req.body;
+    try {
+        const user = await createUser(body);
+        await sendEmail({
+            from: "test.example.com",
+            to: user.email,
+            subject: "Please verify your account",
+            text: `verification code ${user.verificationCode}. Id: ${user._id}`,
+
+        }
+        );
+        return res.send("User successfully created");
+    } catch (error: any) {
+        if (error.code === 11000){
+                return res.status(409).send("Account already exists");
+        }
+        return res.status(500).send(error);
+    }
+}
+
 
 export async function verifyUserHandler(req: Request<VerifyUserInput>, res: Response){
     const id = req.params.id;
@@ -125,7 +147,8 @@ export async function resetPasswordHandler(
 
 export async function reserveSlotHandler(req: Request<ReserveSlotInput["params"],{},ReserveSlotInput["body"]>, res: Response){
     const id = req.params.id;
-    const {startTime,day,endTime} = req.body;
+    const roomId = req.params.roomId;
+    const {startTime,day,endTime, desk} = req.body;
 
     const currentDay = dayjs();
     
@@ -139,28 +162,36 @@ export async function reserveSlotHandler(req: Request<ReserveSlotInput["params"]
     }
 
     const user = await findUserById(id);
-
     if (!user){
         return res.send("No user found");
     }
-    
-    const slot = await findSlot(day,startTime,endTime);
-    if (!slot){
-        let body = {day,startTime,endTime};
-        const slot = await createSlot(body);
-        return res.send(slot);
-    }
-    else{
-        if(!slot.user){
-            slot.user = user;
-            await slot.save();
-            return res.send(slot);
-
-        }else{
-            return res.send("This slot is not available. Please choose another slot");
+    const room = await findRoomById(roomId);
+    if (!room){
+        return res.send("No room found");
+    }else{
+        if ((room.desk)< desk){
+            return res.send("No desk found");
         }
-    }
+        const slot = await findSlot(day,startTime,endTime,room,desk);
+        if (!slot){
+            let body = {day,startTime,endTime,room,desk};
+            const slot = await createSlot(body);
+        }
+        else{
+            if(!slot.user){
+                slot.user = user;
+                slot.room = room;
+                await slot.save();
+                return res.send(slot);
+            }else{ 
+                return res.send("This slot is not available. Please choose another slot");
+            }
+        }
+    } 
 }
+
+
+
 
 export async function getCurrentUserHandler(req: Request, res: Response) {
     return res.send(res.locals.user);

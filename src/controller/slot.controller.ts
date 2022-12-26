@@ -9,6 +9,7 @@ import { DataExchange } from "aws-sdk";
 export async function getReservedSlotsHandler(req: Request<{},{},ReservedSlotsInput>, res: Response){
     const {day,startTime,endTime} = req.body;
     const slots = await getReservedSlots(day,startTime,endTime);
+    console.log(slots)
     return res.send(slots);
 
 }
