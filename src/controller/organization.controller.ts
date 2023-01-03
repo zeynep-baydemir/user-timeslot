@@ -24,7 +24,7 @@ export async function assignAdminToOrganization(req: Request<AssignAdminInput["p
     const organization = await findOrganizationByName(name);
 
     if (!organization){
-        return res.send("Organization is not found");
+        return res.status(404).send("Organization is not found");
     }
     if(admin){
         if(!organization.admin){
@@ -51,7 +51,6 @@ export async function createRoomHandler(req: Request<{},{},CreateRoomInput>,res:
             return res.status(409).send("Room already exists");
     }
     return res.status(500).send(error);
-        return res.status(500).send(error);
     }
 
 }

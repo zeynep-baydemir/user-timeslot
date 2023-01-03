@@ -78,16 +78,16 @@ export async function verifyUserHandler(req: Request<VerifyUserInput>, res: Resp
     const user = await findUserById(id);
 
     if (!user){
-        return res.send("No user found");
+        return res.status(404).send("No user found");
     }
     if (user.verified){ 
-        return res.send("User is already verified");
+        return res.status(409).send("User is already verified");
     }
 
     if(user.verificationCode === verificationCode){
         user.verified = true;
         await user.save();
-        return res.send("User succesfully verified");
+        return res.send(user);
     }
     return res.send("Could not verify user");
 }
@@ -99,7 +99,7 @@ export async function forgotPasswordHandler(req: Request<{}, {}, ForgotPasswordI
 
     if(!user) {
         log.debug(`User with email ${email} does not exist`);
-        return res.send(message);
+        return res.status(404).send(message);
     }
     if (!user.verified){ 
         return res.send("User is not verified");
@@ -141,7 +141,7 @@ export async function resetPasswordHandler(
 
     await user.save();
 
-    return res.send("Successfully updated user password");
+    return res.send(user);
 
 }
 
@@ -163,14 +163,14 @@ export async function reserveSlotHandler(req: Request<ReserveSlotInput["params"]
 
     const user = await findUserById(id);
     if (!user){
-        return res.send("No user found");
+        return res.status(404).send("No user found");
     }
     const room = await findRoomById(roomId);
     if (!room){
-        return res.send("No room found");
+        return res.status(404).send("No room found");
     }else{
         if ((room.desk)< desk){
-            return res.send("No desk found");
+            return res.status(404).send("No desk found");
         }
         const slot = await findSlot(day,startTime,endTime,room,desk);
         if (!slot){

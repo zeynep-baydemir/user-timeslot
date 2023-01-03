@@ -26,16 +26,16 @@ const options: swaggerJsdoc.Options = {
             },
         ],
     },
-    apis: ["../routes/*.routes.ts", "../schema/*.schema.ts"],
+    apis: ["./src/routes/*.routes.ts", "./src/schema/*.schema.ts"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 export function swaggerDocs(app: Express, port: number){
-    app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-    app.get('docs.json', (req: Request, res: Response) => {
-        res.setHeader('Content-Type', 'application/json');
+    app.get("/docs.json", (req: Request, res: Response) => {
+        res.setHeader("Content-Type", "application/json");
         res.send(swaggerSpec);
     });
 

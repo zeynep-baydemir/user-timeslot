@@ -52,7 +52,7 @@ import {object, string, TypeOf} from 'zod';
  *              updatedAt:
  *                  type: string
  *              __v:
- *                  type: string
+ *                  type: integer
  */
 
 export const createUserSchema = object({   
@@ -78,6 +78,26 @@ export const createUserSchema = object({
     }),
 });
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      VerifyUserInput:
+ *          type: object
+ *          required: 
+ *              - id
+ *              - verificationCode
+ *          properties:
+ *              id:
+ *                  type: string
+ *              verificationCode:
+ *                  type: string
+ *      VerifyUserResponse:
+ *          type: object
+ *          properties:
+ *              user:
+ *                  $ref: '#/components/schemas/CreateUserResponse'
+ */
 
 
 export const verifyUserSchema = object({
@@ -87,6 +107,27 @@ export const verifyUserSchema = object({
     }),
 })
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      ForgotPasswordInput:
+ *          type: object
+ *          required: 
+ *              - email
+ *          properties:
+ *              id:
+ *                  type: string
+ *              verificationCode:
+ *                  type: string
+ *      ForgotPasswordResponse:
+ *          type: object
+ *          properties:
+ *              message:
+ *                  type: string
+ *                  default: "If a user with that email is registered you will receive reset email"
+ */
+
 export const forgotPasswordSchema = object({
     body: object({
         email: string({
@@ -94,6 +135,48 @@ export const forgotPasswordSchema = object({
         }).email("Invalid email"),
     }),
 })
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      ResetPasswordInput:
+ *          type: object
+ *          required: 
+ *              - password
+ *              - passwordConfirmation
+ *          properties:
+ *              password:
+ *                  type: string
+ *              passwordConfirmation:
+ *                  type: string
+ *      ResetPasswordResponse:
+ *          type: object
+ *          properties:
+ *              email:
+ *                  type: string
+ *              firstName:
+ *                  type: string
+ *              lastName:
+ *                  type: string
+ *              password:
+ *                  type: string
+ *              verified:
+ *                  type: string
+ *              role:
+ *                  type: string
+ *              _id:
+ *                  type: string
+ *              verificationCode:
+ *                  type: string
+ *              createdAt:
+ *                  type: string
+ *              updatedAt:
+ *                  type: string
+ *              __v:
+ *                  type: string
+ */
+
 
 export const resetPasswordSchema = object({
     params: object({
@@ -113,6 +196,31 @@ export const resetPasswordSchema = object({
     }),
 })
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      ReserveSlotInput:
+ *          type: object
+ *          required: 
+ *              - startTime
+ *              - endTime
+ *              - day
+ *              - desk
+ *          properties:
+ *              startTime:
+ *                  type: string
+ *              endTime:
+ *                  type: string
+ *              day:
+ *                  type: string
+ *              desk:
+ *                  type: string
+ *      ResetPasswordResponse:
+ *          type: object
+ *          properties:
+ *          
+ */
 export const reserveSlotSchema = object({
     params:  object ({
         id: string(), 
@@ -125,6 +233,23 @@ export const reserveSlotSchema = object({
         desk: string({required_error: "desk is required"})
     })
 })
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      AssingAdminorUserInput:
+ *          type: object
+ *          required: 
+ *              - organization
+ *          properties:
+ *              organization:
+ *                  type: string
+ *      AssignAdminorUserResponse:
+ *          type: object
+ *          properties:
+ *          
+ */
 
 export const assignAdminorUserSchema = object({
     params:  object ({

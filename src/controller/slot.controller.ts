@@ -5,7 +5,9 @@ import { findUserById } from "../service/user.service";
 import { Slot } from "../model/slot.model";
 import dayjs from "dayjs";
 import { DataExchange } from "aws-sdk";
-    
+ 
+
+
 export async function getReservedSlotsHandler(req: Request<{},{},ReservedSlotsInput>, res: Response){
     const {day,startTime,endTime} = req.body;
     const slots = await getReservedSlots(day,startTime,endTime);

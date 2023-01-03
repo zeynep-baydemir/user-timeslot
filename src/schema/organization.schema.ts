@@ -1,13 +1,58 @@
 import { array, number, object, string, TypeOf } from "zod";
 import { Room } from "../model/organization.model";
 
-
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      CreateOrganizationInput:
+ *          type: object
+ *          required: 
+ *              - name
+ *          properties:
+ *              name:
+ *                  type: string
+ *      CreateOrganizationResponse:
+ *          type: object
+ *          properties:
+ *              name:
+ *                  type: string
+ *              _id:
+ *                  type: string
+ *              __v:
+ *                  type: integer
+ */
 export const createOrganizationSchema = object({
     body: object ({
         name: string({required_error: "name is required"})
     })
 })
-
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      CreateRoomInput:
+ *          type: object
+ *          required: 
+ *              - roomNumber
+ *              - desk
+ *          properties:
+ *              roomNumber:
+ *                  type: string
+ *              desk:
+ *                  type: string
+ *      CreateRoomResponse:
+ *          type: object
+ *          properties:
+ *              roomNumber:
+ *                  type: string
+ *              desk:
+ *                  type: string
+ *              _id:
+ *                  type: string
+ *              __v:
+ *                  type: integer
+ */
 export const createRoomSchema = object({
     body: object ({
         roomNumber: string({required_error: "room number is required"}),
@@ -15,6 +60,31 @@ export const createRoomSchema = object({
     })
 })
 
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      AssignAdminInput:
+ *          type: object
+ *          required: 
+ *              - name
+ *          properties:
+ *              name:
+ *                  type: string
+ *      AssignAdminResponse:
+ *          type: object
+ *          properties:
+ *              _id:
+ *                  type: string
+ *              name:
+ *                  type: string
+ *              __v:
+ *                  type: integer
+ *              admin:
+ *                  $ref: '#/components/schemas/CreateUserResponse'
+ *                      
+ */
 export const assignAdminToOrganizationSchema = object({
     params: object({
         id: string(), 
@@ -24,6 +94,32 @@ export const assignAdminToOrganizationSchema = object({
     })
 })
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      AssignOrganizationInput:
+ *          type: object
+ *          required: 
+ *              - name
+ *          properties:
+ *              name:
+ *                  type: string
+ *      AssignOrganizationResponse:
+ *          type: object
+ *          properties:
+ *              _id:
+ *                  type: string
+ *              roomNumber:
+ *                  type: string
+ *              desk:
+ *                  type: string
+ *              __v:
+ *                  type: integer
+ *              organization:
+ *                  $ref: '#/components/schemas/CreateRoomResponse'
+ *                      
+ */
 export const assignRoomToOrganizationSchema = object({
     params: object({
         id: string(), 
@@ -33,6 +129,27 @@ export const assignRoomToOrganizationSchema = object({
     })
 })
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *      RoomsOfOrganizationResponse:
+ *          type: array
+ *          items:
+ *              type: object
+ *              properties:
+ *                  _id:
+ *                      type: string
+ *                  roomNumber:
+ *                      type: string
+ *                  desk:
+ *                      type: string
+ *                  __v:
+ *                      type: integer
+ *                  organization:
+ *                      type: string
+ *                      
+ */
 export const roomsOfOrganizationSchema = object({
     params: object({
         id: string(), 
